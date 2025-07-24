@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Library | Space Books</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --space-blue: #0f1a2c;
+            --nebula-purple: #4e3d8a;   
+            --star-yellow: #f9d71c;
+            --cosmic-text: #e0e0e0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: var(--cosmic-text);
+            font-family: 'Segoe UI', sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        .books-header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1400&auto=format&fit=crop') center/cover;
+            position: relative;
+        }
+
+        .books-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 26, 44, 0.85);
+        }
+
+        .books-header h1 {
+            position: relative;
+            z-index: 1;
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to right, #f9d71c, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .books-header p {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 1rem auto;
+        }
+
+        /* Search and Filter */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem auto;
+            max-width: 500px;
+        }
+
+        #searchInput {
+            padding: 0.8rem;
+            border-radius: 30px 0 0 30px;
+            border: 1px solid var(--nebula-purple);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 80%;
+            outline: none;
+        }
+
+        #searchBtn {
+            background: var(--nebula-purple);
+            color: white;
+            border: none;
+            padding: 0 1.2rem;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+        }
+
+        .book-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--nebula-purple);
+            color: var(--cosmic-text);
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--nebula-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 61, 138, 0.4);
+        }
+
+        /* Books Grid */
+        .books-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .book-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .book-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(78, 61, 138, 0.6);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .book-title {
+            font-size: 1.3rem;
+            margin: 0 0 0.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .book-author {
+            color: var(--star-yellow);
+            margin-bottom: 0.8rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .book-desc {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .book-rating {
+            color: var(--star-yellow);
+        }
+
+        .wishlist-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .wishlist-btn:hover {
+            background: rgba(249, 215, 28, 0.9);
+            color: #000;
+        }
+
+        .wishlist-btn.active {
+            background: var(--star-yellow);
+            color: #000;
+        }
+
+        .read-btn {
+            display: inline-block;
+            background: var(--nebula-purple);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 250px;
+            text-align: center;
+        }
+
+        .read-btn:hover {
+            background: var(--star-yellow);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 61, 138, 0.4);
+        }
+
+        .wishlist-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .wishlist-counter i {
+            color: var(--star-yellow);
+        }
+
+        /* Footer */
+        .books-footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .books-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            font-size: 1.2rem;
+            color: var(--star-yellow);
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <section class="books-header">
+        <h1>Cosmic Library</h1>
+        <p>Explore the universe through these handpicked space books. Filter by category or save to your wishlist!</p>
+        <div class="wishlist-counter">
+            <i class="fas fa-star"></i>
+            <span id="wishlistCount">0</span>
+        </div>
+    </section>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search books...">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+    </div>
+
+    <div class="book-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="astrophysics">Astrophysics</button>
+        <button class="filter-btn" data-filter="cosmology">Cosmology</button>
+        <button class="filter-btn" data-filter="biography">Biography</button>
+        <button class="filter-btn" data-filter="fiction">Fiction</button>
+    </div>
+
+    <div class="books-container" id="booksContainer">
+        <!-- Books will be dynamically inserted here -->
+    </div>
+
+    <footer class="books-footer">
+        <p>More cosmic books coming soon! Follow us for updates.</p>
+    </footer>
+
+    <script>
+        const books = [
+            {
+                id: 1,
+                title: "The Apollo of Aeronautics: NASA's Aircraft Energy Efficiency Program, 1973-1987",
+                author: "Carl Sagan",
+                cover: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The story of cosmic evolution, science, and civilization, tracing the origins of matter, life, and consciousness.",
+                category: "cosmology",
+                rating: "★★★★★",
+                pdfLink: "601247main_ApolloAeronautics-ebook.pdf"
+            },
+            {
+                id: 2,
+                title: "50 Years of Solar System Exploration",
+                author: "Neil deGrasse Tyson",
+                cover: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The essential universe, from our most celebrated and beloved astrophysicist.",
+                category: "astrophysics",
+                rating: "★★★★☆",
+                pdfLink: "50-years-of-solar-system-exploration_tagged.pdf"
+            },
+            {
+                id: 3,
+                title: "Governing the Moon",
+                author: "Stephen Hawking",
+                cover: "https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "From the Big Bang to black holes, this book explores the nature of time and the universe.",
+                category: "cosmology",
+                rating: "★★★★★",
+                pdfLink: "governing-the-moon-sp-2024-4559-ebook.pdf"
+            },
+            {
+                id: 4,
+                title: "Cosmos and Culture",
+                author: "Andy Weir",
+                cover: "https://images.unsplash.com/photo-1541873676-a18131494184?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "An astronaut becomes stranded on Mars and must find a way to survive with limited supplies.",
+                category: "fiction",
+                rating: "★★★★☆",
+                pdfLink: "sp-4802.pdf"
+            },
+            {
+                id: 5,
+                title: "ISRO - Genesis and Journey",
+                author: "Carl Sagan",
+                cover: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "A vision of the human future in space and our place in the universe.",
+                category: "cosmology",
+                rating: "★★★★★",
+                pdfLink: "01_ISRO_Genesis_and_Journey_Nagendra.pdf"
+            },
+            {
+                id: 6,
+                title: "Dr. Vikram Sarabhai",
+                author: "Dr. Vikram Sarabhai",
+                cover: "https://images.unsplash.com/photo-1605106702734-205df224ecce?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The true story of the Black women mathematicians who helped NASA win the space race.",
+                category: "biography",
+                rating: "★★★★★",
+                pdfLink: "03_Dr.Vikram Sarabhai_Priyanka.pdf"
+            },
+            {
+                id: 7,
+                title: "The End of Everything",
+                author: "Katie Mack",
+                cover: "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "Astrophysicist Katie Mack explores five ways the universe could end, from the Big Crunch to vacuum decay.",
+                category: "cosmology",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book7.pdf"
+            },
+            {
+                id: 8,
+                title: "The Right Stuff",
+                author: "Tom Wolfe",
+                cover: "https://images.unsplash.com/photo-1464802686167-b939a6910659?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The classic account of the early days of the U.S. space program and the test pilots who became astronauts.",
+                category: "biography",
+                rating: "★★★★★",
+                pdfLink: "https://example.com/path-to-book8.pdf"
+            },
+            {
+                id: 9,
+                title: "Black Hole Blues",
+                author: "Janna Levin",
+                cover: "https://images.unsplash.com/photo-1464802686167-b939a6910659?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The story of the decades-long quest to detect gravitational waves and prove Einstein's theory.",
+                category: "astrophysics",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book9.pdf"
+            },
+            {
+                id: 10,
+                title: "The Disordered Cosmos",
+                author: "Chanda Prescod-Weinstein",
+                cover: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "A theoretical physicist explores dark matter, spacetime, and the intersection of science with social justice.",
+                category: "astrophysics",
+                rating: "★★★★★",
+                pdfLink: "https://example.com/path-to-book10.pdf"
+            },
+            {
+                id: 11,
+                title: "An Astronaut's Guide to Life on Earth",
+                author: "Chris Hadfield",
+                cover: "https://images.unsplash.com/photo-1541873676-a18131494184?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "Astronaut Chris Hadfield shares lessons learned from his space missions that apply to everyday life.",
+                category: "biography",
+                rating: "★★★★★",
+                pdfLink: "https://example.com/path-to-book11.pdf"
+            },
+            {
+                id: 12,
+                title: "The Three-Body Problem",
+                author: "Liu Cixin",
+                cover: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "A groundbreaking Chinese science fiction novel about humanity's first contact with an alien civilization.",
+                category: "fiction",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book12.pdf"
+            },
+            {
+                id: 13,
+                title: "The First Three Minutes",
+                author: "Steven Weinberg",
+                cover: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "Nobel laureate explains what happened in the first moments after the Big Bang.",
+                category: "cosmology",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book13.pdf"
+            },
+            {
+                id: 14,
+                title: "Rocket Men",
+                author: "Robert Kurson",
+                cover: "https://images.unsplash.com/photo-1454789548928-9efd52dc4031?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The thrilling story of Apollo 8, the first mission to orbit the Moon.",
+                category: "history",
+                rating: "★★★★★",
+                pdfLink: "https://example.com/path-to-book14.pdf"
+            },
+            {
+                id: 15,
+                title: "The Planets",
+                author: "Dava Sobel",
+                cover: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "A lyrical exploration of our solar system through science, history, and mythology.",
+                category: "astrophysics",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book15.pdf"
+            },
+            {
+                id: 16,
+                title: "Packing for Mars",
+                author: "Mary Roach",
+                cover: "https://images.unsplash.com/photo-1605106702734-205df224ecce?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "A humorous investigation into the strange science of living in space.",
+                category: "biography",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book16.pdf"
+            },
+            {
+                id: 17,
+                title: "The Black Hole War",
+                author: "Leonard Susskind",
+                cover: "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=600&auto=format&fit=crop&ixlib=rb-4.1.0",
+                desc: "The scientific debate between Stephen Hawking and Leonard Susskind about information in black holes.",
+                category: "astrophysics",
+                rating: "★★★★☆",
+                pdfLink: "https://example.com/path-to-book17.pdf"
+            }
+        ];
+
+        const booksContainer = document.getElementById('booksContainer');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+        function renderBooks(filter = 'all') {
+            booksContainer.innerHTML = '';
+            const filteredBooks = filter === 'all' ? books : books.filter(book => book.category === filter);
+            
+            if (filteredBooks.length === 0) {
+                booksContainer.innerHTML = '<p class="no-results">No books found in this category.</p>';
+                return;
+            }
+            
+            filteredBooks.forEach(book => {
+                const isInWishlist = wishlist.includes(book.id);
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.dataset.category = book.category;
+                bookCard.innerHTML = `
+                    <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" data-id="${book.id}">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <span class="book-author">${book.author}</span>
+                        <p class="book-desc">${book.desc}</p>
+                        <div class="book-meta">
+                            <span class="book-rating">${book.rating}</span>
+                            <span>${book.category}</span>
+                        </div>
+                        <a href="${book.pdfLink}" target="_blank" class="read-btn">
+                            <i class="fas fa-book-open"></i> Read Book
+                        </a>
+                    </div>
+                `;
+                booksContainer.appendChild(bookCard);
+            });
+
+            document.querySelectorAll('.wishlist-btn').forEach(btn => {
+                btn.addEventListener('click', toggleWishlist);
+            });
+            
+            updateWishlistCounter();
+        }
+
+        function toggleWishlist(e) {
+            const bookId = parseInt(e.currentTarget.dataset.id);
+            const index = wishlist.indexOf(bookId);
+            
+            if (index === -1) {
+                wishlist.push(bookId);
+            } else {
+                wishlist.splice(index, 1);
+            }
+            
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            e.currentTarget.classList.toggle('active');
+            updateWishlistCounter();
+        }
+
+        function updateWishlistCounter() {
+            document.getElementById('wishlistCount').textContent = wishlist.length;
+        }
+
+        function searchBooks() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            const filteredBooks = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(searchTerm) || 
+                                    book.author.toLowerCase().includes(searchTerm);
+                const matchesFilter = activeFilter === 'all' || book.category === activeFilter;
+                return matchesSearch && matchesFilter;
+            });
+            
+            renderFilteredBooks(filteredBooks);
+        }
+
+        function renderFilteredBooks(filteredBooks) {
+            booksContainer.innerHTML = '';
+            
+            if (filteredBooks.length === 0) {
+                booksContainer.innerHTML = '<p class="no-results">No books found matching your search.</p>';
+                return;
+            }
+            
+            filteredBooks.forEach(book => {
+                const isInWishlist = wishlist.includes(book.id);
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.innerHTML = `
+                    <button class="wishlist-btn ${isInWishlist ? 'active' : ''}" data-id="${book.id}">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <img src="${book.cover}" alt="${book.title}" class="book-cover">
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <span class="book-author">${book.author}</span>
+                        <p class="book-desc">${book.desc}</p>
+                        <div class="book-meta">
+                            <span class="book-rating">${book.rating}</span>
+                            <span>${book.category}</span>
+                        </div>
+                        <a href="${book.pdfLink}" target="_blank" class="read-btn">
+                            <i class="fas fa-book-open"></i> Read Book
+                        </a>
+                    </div>
+                `;
+                booksContainer.appendChild(bookCard);
+            });
+            
+            document.querySelectorAll('.wishlist-btn').forEach(btn => {
+                btn.addEventListener('click', toggleWishlist);
+            });
+        }
+
+        // Event Listeners
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderBooks(button.dataset.filter);
+            });
+        });
+
+        document.getElementById('searchBtn').addEventListener('click', searchBooks);
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') searchBooks();
+        });
+
+        // Initial render
+        renderBooks();
+        updateWishlistCounter();
+    </script>
+</body>
+</html>
